@@ -38,20 +38,15 @@ func (phil *Philosopher) eat() {
 func (phil *Philosopher) getChopsticks() {
 	timeout := make(chan bool, 1)
 	go func() { time.Sleep(1e9); timeout <- true }()
+	<-phil.chopstick
+	fmt.Printf("%v got his chopstick.\n",phil.name)
 	select {
-		case <-phil.chopstick:
-			fmt.Printf("%v got his chopstick.\n",phil.name)
-			select {
-				case <-phil.neighbor.chopstick:
-					fmt.Printf("%v got %v's chopstick.\n",phil.name,phil.neighbor.name)
-					fmt.Printf("%v has two chopsticks.\n",phil.name)
-					return
-				case <-timeout:
-					phil.chopstick <- true
-					phil.think()
-					phil.getChopsticks()
-			}
+		case <-phil.neighbor.chopstick:
+			fmt.Printf("%v got %v's chopstick.\n",phil.name,phil.neighbor.name)
+			fmt.Printf("%v has two chopsticks.\n",phil.name)
+			return
 		case <-timeout:
+			phil.chopstick <- true
 			phil.think()
 			phil.getChopsticks()
 	}
