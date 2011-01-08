@@ -14,14 +14,13 @@ import (
 )
 
 type Philosopher struct {
-	id           int
 	name         string
 	chopstick    chan bool
 	neighbor     *Philosopher
 }
 
-func makePhilosopher(id int, name string, neighbor *Philosopher) *Philosopher {
-	phil := &Philosopher{id, name, make(chan bool, 1), neighbor}
+func makePhilosopher(name string, neighbor *Philosopher) *Philosopher {
+	phil := &Philosopher{name, make(chan bool, 1), neighbor}
 	phil.chopstick <- true
 	return phil
 }
@@ -77,7 +76,7 @@ func main() {
 	philosophers := make([]*Philosopher,len(names))
 	var phil *Philosopher
 	for i, name := range names {
-		phil = makePhilosopher(i,name,phil)
+		phil = makePhilosopher(name,phil)
 		philosophers[i] = phil
 	}
 	philosophers[0].neighbor = phil
