@@ -9,14 +9,14 @@ package main
 
 import (
 	"fmt"
-	"rand"
+	"math/rand"
 	"time"
 )
 
 type Philosopher struct {
-	name         string
-	chopstick    chan bool
-	neighbor     *Philosopher
+	name      string
+	chopstick chan bool
+	neighbor  *Philosopher
 }
 
 func makePhilosopher(name string, neighbor *Philosopher) *Philosopher {
@@ -26,29 +26,29 @@ func makePhilosopher(name string, neighbor *Philosopher) *Philosopher {
 }
 
 func (phil *Philosopher) think() {
-	fmt.Printf("%v is thinking.\n",phil.name)
-	time.Sleep(rand.Int63n(1e9))
+	fmt.Printf("%v is thinking.\n", phil.name)
+	time.Sleep(time.Duration(rand.Int63n(1e9)))
 }
 
 func (phil *Philosopher) eat() {
 	fmt.Printf("%v is eating.\n", phil.name)
-	time.Sleep(rand.Int63n(1e9))
+	time.Sleep(time.Duration(rand.Int63n(1e9)))
 }
 
 func (phil *Philosopher) getChopsticks() {
 	timeout := make(chan bool, 1)
 	go func() { time.Sleep(1e9); timeout <- true }()
 	<-phil.chopstick
-	fmt.Printf("%v got his chopstick.\n",phil.name)
+	fmt.Printf("%v got his chopstick.\n", phil.name)
 	select {
-		case <-phil.neighbor.chopstick:
-			fmt.Printf("%v got %v's chopstick.\n",phil.name,phil.neighbor.name)
-			fmt.Printf("%v has two chopsticks.\n",phil.name)
-			return
-		case <-timeout:
-			phil.chopstick <- true
-			phil.think()
-			phil.getChopsticks()
+	case <-phil.neighbor.chopstick:
+		fmt.Printf("%v got %v's chopstick.\n", phil.name, phil.neighbor.name)
+		fmt.Printf("%v has two chopsticks.\n", phil.name)
+		return
+	case <-timeout:
+		phil.chopstick <- true
+		phil.think()
+		phil.getChopsticks()
 	}
 }
 
@@ -66,12 +66,12 @@ func (phil *Philosopher) dine(announce chan *Philosopher) {
 }
 
 func main() {
-	names := []string{"Kant","Heidegger","Wittgenstein",
-		"Locke","Descartes","Newton","Hume","Leibniz"}
-	philosophers := make([]*Philosopher,len(names))
+	names := []string{"Kant", "Heidegger", "Wittgenstein",
+		"Locke", "Descartes", "Newton", "Hume", "Leibniz"}
+	philosophers := make([]*Philosopher, len(names))
 	var phil *Philosopher
 	for i, name := range names {
-		phil = makePhilosopher(name,phil)
+		phil = makePhilosopher(name, phil)
 		philosophers[i] = phil
 	}
 	philosophers[0].neighbor = phil
@@ -81,8 +81,8 @@ func main() {
 	for _, phil := range philosophers {
 		go phil.dine(announce)
 	}
-	for i :=0; i<len(names); i++ {
+	for i := 0; i < len(names); i++ {
 		phil := <-announce
-		fmt.Printf("%v is done dining.\n",phil.name)
+		fmt.Printf("%v is done dining.\n", phil.name)
 	}
 }
